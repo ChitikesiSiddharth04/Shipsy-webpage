@@ -158,7 +158,10 @@ const DashboardHandler = {
 
     handleDelete: function(button) {
         const experimentId = button.dataset.id;
-        const experimentTitle = button.dataset.title;
+        let experimentTitle = button.dataset.title;
+        if (!experimentTitle || experimentTitle.trim() === "") {
+            experimentTitle = "(Untitled Experiment)";
+        }
 
         const modalElement = document.getElementById('deleteConfirmationModal');
         const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
