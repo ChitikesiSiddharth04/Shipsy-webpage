@@ -14,10 +14,5 @@
   ],
   "env": {
     "SECRET_KEY": "@secret_key"
-  },
-  "functions": {
-    "app.py": {
-      "maxDuration": 30
-    }
   }
 } 
