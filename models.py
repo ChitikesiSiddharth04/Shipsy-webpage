@@ -4,8 +4,10 @@ from datetime import datetime
 from typing import List, Optional, Dict, Any
 
 class DatabaseManager:
-    def __init__(self, db_path: str = "experiments.db"):
-        self.db_path = db_path
+    def __init__(self, db_path: str = None):
+        # Use Vercel's writable /tmp directory for the database
+        import os
+        self.db_path = db_path or os.path.join(os.getenv('VERCEL', '') and '/tmp' or '.', 'experiments.db')
         self.init_database()
     
     def get_connection(self):

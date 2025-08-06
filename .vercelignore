@@ -1,0 +1,33 @@
+# Ignore virtual environment
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ignore local development files
+.env
+*.db
+*.sqlite3
+
+# Ignore test files
+tests/
+
+# Ignore IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Ignore local logs and cache
+*.log
+.pytest_cache/
+
+# Ignore local deployment files
+.vercel/
+
+# Ignore documentation files
+docs/
+*.md
+
+# Ignore sample data
+populate_sample_data.py

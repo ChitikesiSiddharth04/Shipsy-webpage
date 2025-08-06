@@ -274,13 +274,54 @@ def not_found(error):
 
 @app.errorhandler(500)
 def internal_error(error):
-    """Handle 500 errors"""
-    return render_template('500.html'), 500
+    """Handle 500 errors with detailed error information"""
+    import traceback
+    error_trace = traceback.format_exc()
+    print(f"500 Error: {str(error)}\n{error_trace}")
+    
+    # For API requests, return JSON
+    if request.path.startswith('/api'):
+        return jsonify({
+            'error': 'Internal Server Error',
+            'message': str(error),
+            'trace': error_trace if app.debug else None
+        }), 500
+        
+    # For web requests, render the template
+    return render_template('500.html', error=error, trace=error_trace if app.debug else None), 500
+
+# Add a test route to verify the app is running
+@app.route('/api/health')
+def health_check():
+    """Health check endpoint for Vercel"""
+    try:
+        # Test database connection
+        conn = db_manager.get_connection()
+        conn.execute('SELECT 1')
+        return jsonify({
+            'status': 'ok',
+            'database': 'connected',
+            'environment': app.config.get('ENV', 'production')
+        })
+    except Exception as e:
+        app.logger.error(f"Health check failed: {str(e)}")
+        return jsonify({
+            'status': 'error',
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     # Create default admin user if it doesn't exist
-    if not user_model.get_user_by_username('admin'):
-        user_model.create_user('admin', 'password123')
-        print("Default admin user created: admin/password123")
+    try:
+        if not user_model.get_user_by_username('admin'):
+            user_model.create_user('admin', 'password123')
+            print("Default admin user created: admin/password123")
+    except Exception as e:
+        print(f"Warning: Could not create default admin user: {str(e)}")
     
-    app.run(debug=True, host='0.0.0.0', port=5001) 
+    # Configure logging
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    app.logger.setLevel(logging.INFO)
+    
+    app.run(debug=True, host='0.0.0.0', port=5001)
