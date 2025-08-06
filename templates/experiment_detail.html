@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% block title %}{{ experiment.title }} - ML Experiments Tracker{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                        <li class="breadcrumb-item active">{{ experiment.title }}</li>
+                    </ol>
+                </nav>
+                <h2><i class="fas fa-flask"></i> {{ experiment.title }}</h2>
+            </div>
+            <div class="btn-group">
+                <a href="{{ url_for('edit_experiment', experiment_id=experiment.id) }}" 
+                   class="btn btn-warning">
+                    <i class="fas fa-edit"></i> Edit
+                </a>
+                <button type="button" class="btn btn-danger" 
+                        onclick="deleteExperiment({{ experiment.id }}, '{{ experiment.title }}')">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Experiment Details -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Experiment Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Status</label>
+                        <div>
+                            <span class="badge bg-{{ 'success' if experiment.status == 'Completed' else 'warning' if experiment.status == 'Running' else 'info' if experiment.status == 'Planning' else 'danger' }} fs-6">
+                                <i class="fas fa-{{ 'check-circle' if experiment.status == 'Completed' else 'play-circle' if experiment.status == 'Running' else 'clock' if experiment.status == 'Planning' else 'times-circle' }}"></i>
+                                {{ experiment.status }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Model Type</label>
+                        <div class="fw-bold">{{ experiment.model_type }}</div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Accuracy</label>
+                        <div class="fw-bold">
+                            {% if experiment.accuracy %}
+                                {{ "%.1f"|format(experiment.accuracy) }}%
+                            {% else %}
+                                <span class="text-muted">Not specified</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label text-muted">Visibility</label>
+                        <div>
+                            <span class="badge bg-{{ 'success' if experiment.is_public else 'secondary' }}">
+                                <i class="fas fa-{{ 'globe' if experiment.is_public else 'lock' }}"></i>
+                                {{ 'Public' if experiment.is_public else 'Private' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-align-left"></i> Description</h5>
+            </div>
+            <div class="card-body">
+                                    <p class="mb-0">{{ experiment.description }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <!-- Metadata -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-calendar"></i> Metadata</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="form-label text-muted">Created</label>
+                    <div class="fw-bold">{{ experiment.created_at }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Last Updated</label>
+                    <div class="fw-bold">{{ experiment.updated_at }}</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label text-muted">Experiment ID</label>
+                    <div class="fw-bold text-muted">#{{ experiment.id }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('edit_experiment', experiment_id=experiment.id) }}" 
+                       class="btn btn-outline-warning">
+                        <i class="fas fa-edit"></i> Edit Experiment
+                    </a>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <button type="button" class="btn btn-outline-danger" 
+                            onclick="deleteExperiment({{ experiment.id }}, '{{ experiment.title }}')">
+                        <i class="fas fa-trash"></i> Delete Experiment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Progress -->
+{% if experiment.status == 'Running' %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-line"></i> Progress</h5>
+            </div>
+            <div class="card-body">
+                <div class="progress mb-3" style="height: 25px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                         role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+                        Training in Progress...
+                    </div>
+                </div>
+                <small class="text-muted">
+                    <i class="fas fa-clock"></i> Estimated completion: 2 hours remaining
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Related Experiments (if any) -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-project-diagram"></i> Similar Experiments</h5>
+            </div>
+            <div class="card-body text-center text-muted">
+                <i class="fas fa-search fa-2x mb-3"></i>
+                <p>No similar experiments found.</p>
+                <small>This feature would show experiments with similar model types or objectives.</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function deleteExperiment(experimentId, experimentTitle) {
+    if (confirm(`Are you sure you want to delete "${experimentTitle}"? This action cannot be undone.`)) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/experiment/${experimentId}/delete`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+{% endblock %} 
