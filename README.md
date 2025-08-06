@@ -175,7 +175,7 @@ CREATE TABLE experiments (
 
 ## 1. Deployed App Link
 
-**Live App:** [https://shipsy-webpage.vercel.app/](https://shipsy-webpage.vercel.app/)
+**Live App:** [replit.dev](https://d29b71df-fa9e-460e-a18b-8d7af2f94490-00-1q81ukdmfrwfc.pike.replit.dev/login)
 
 ---
 
